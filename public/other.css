@@ -1,0 +1,28 @@
+body {
+  background-image: url("back2.jpg");
+  background-size: cover;
+}
+
+video {
+  margin: 15% 30%;
+}
+
+audio{
+    margin: 20% 35%;
+}
+
+@media (max-width: 768px) {
+  body {
+    background-size: auto;
+  }
+
+  video {
+    height: 240px;
+    width: 360px;
+    margin: 50% 6%;
+  }
+
+  audio{
+    margin: 50% 10%;
+}
+}

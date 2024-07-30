@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed</title>
+    <link rel="stylesheet" href="/posts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+    <h2 class="glow">Moodify Feed</h2>
+    <div class="createPost"><a href="http://localhost:8080/posts/new"><i class="fa-solid fa-circle-plus"></i>Create a post</a></div>
+    <% for(post of posts) {%>
+        <div class="post">
+            <i class="fa-regular fa-circle-user"></i>
+            <h3>@<%= post.username %></h3>
+            <p><%= post.content %></p>
+            <div class="icons">
+                <input type="checkbox" id="react">
+                <label for="react" class="react"><i class="fa-solid fa-heart"></i></label>
+                <i class="fa-regular fa-comment"></i>
+                <i class="fa-regular fa-share-from-square"></i>
+                <i class="fa-solid fa-chart-simple"></i>
+            </div>
+        </div>
+    <% } %>
+</body>
+</html>
