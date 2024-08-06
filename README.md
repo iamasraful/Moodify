@@ -18,6 +18,9 @@ A few days ago, I delved into the concepts of REST APIs. To practice what I lear
 - **Meme Generation:** Users will be able to generate memes according to different categories. 🖼️
 - **Mood-Based Songs:** Users will be able to generate songs based on their current mood. 🎼
 
+![Moodify_compressed-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ba73ac40-01e4-4511-8725-38ff16d65ef1)
+
+
 ### Technologies Used
 - **Node.js:** Backend JavaScript runtime environment. 🌐
 - **Express.js:** Web application framework for Node.js. 🛠️
