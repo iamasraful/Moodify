@@ -103,7 +103,7 @@ export default function App() {
           boxShadow:"0 1px 0 rgba(255,255,255,0.02)",
         }}>
           <ConfigBanner/>
-          <div style={{maxWidth:860, margin:"0 auto", padding:"12px 16px"}}>
+          <div style={{maxWidth:860, margin:"0 auto", padding:"8px 16px"}}>
             <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12}}>
               <div style={{display:"flex", alignItems:"center", gap:10}}>
                 <div style={{
@@ -133,7 +133,7 @@ export default function App() {
           <main style={{
             flex:1, minWidth:0,
             overflowY:"auto", overscrollBehavior:"none",
-            padding:"24px 16px 120px",
+            padding:"1px 16px 120px",
           }}>
             <div key={page} style={{animation:"fadeUp 0.35s ease"}}>
               <PageComponent/>
