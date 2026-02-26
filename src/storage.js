@@ -1,22 +1,11 @@
-// ─── STORAGE LAYER ────────────────────────────────────────────────────────────
-// Personal data  → localStorage (instant, private per browser)
-// Shared data    → JSONBin.io free API  (community feed visible to all users)
-//
-// HOW TO SET UP JSONBIN (free, takes 60 seconds):
-//   1. Go to https://jsonbin.io and sign up free
-//   2. Click "Create Bin" → paste this as initial content: {"posts":[]}
-//   3. Copy the Bin ID from the URL  (looks like: 64f3a2b1...)
-//   4. Go to API Keys → Master Key → copy it
-//   5. Paste both values below and redeploy
-
 const JSONBIN_BIN_ID  = import.meta.env.VITE_JSONBIN_BIN_ID  || "";
 const JSONBIN_API_KEY = import.meta.env.VITE_JSONBIN_API_KEY || "";
 const JSONBIN_BASE    = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-// ── JSONBin helpers ───────────────────────────────────────────────────────────
 let _sharedCache = null;
 let _cacheTs     = 0;
-const CACHE_TTL  = 5000; // ms
+const CACHE_TTL  = 5000;
+let _pendingWrite = null;
 
 async function jsonbinGet() {
   if (!JSONBIN_BIN_ID) return {};
@@ -26,6 +15,7 @@ async function jsonbinGet() {
     const res  = await fetch(`${JSONBIN_BASE}/latest`, {
       headers: { "X-Master-Key": JSONBIN_API_KEY }
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     _sharedCache = json.record || {};
     _cacheTs     = now;
@@ -39,20 +29,23 @@ async function jsonbinSet(data) {
   if (!JSONBIN_BIN_ID) return;
   _sharedCache = data;
   _cacheTs     = Date.now();
-  try {
-    await fetch(JSONBIN_BASE, {
-      method:  "PUT",
-      headers: {
-        "Content-Type":  "application/json",
-        "X-Master-Key":  JSONBIN_API_KEY,
-        "X-Bin-Versioning": "false",
-      },
-      body: JSON.stringify(data),
-    });
-  } catch {}
+  // Debounce writes — only last write within 300ms goes through
+  if (_pendingWrite) clearTimeout(_pendingWrite);
+  _pendingWrite = setTimeout(async () => {
+    try {
+      await fetch(JSONBIN_BASE, {
+        method:  "PUT",
+        headers: {
+          "Content-Type":     "application/json",
+          "X-Master-Key":     JSONBIN_API_KEY,
+          "X-Bin-Versioning": "false",
+        },
+        body: JSON.stringify(data),
+      });
+    } catch {}
+  }, 300);
 }
 
-// ── Public API ────────────────────────────────────────────────────────────────
 export async function storageGet(key, shared = false) {
   if (shared) {
     const data = await jsonbinGet();
@@ -69,7 +62,15 @@ export async function storageGet(key, shared = false) {
 export async function storageSet(key, value, shared = false) {
   if (shared) {
     const data = await jsonbinGet();
-    data[key]  = value;
+    // Sanitize posts — strip excessively large payloads
+    if (key === "posts" && Array.isArray(value)) {
+      value = value.slice(0, 200).map(p => ({
+        ...p,
+        text: String(p.text || "").slice(0, 500),
+        replies: (p.replies || []).slice(0, 50),
+      }));
+    }
+    data[key] = value;
     await jsonbinSet(data);
     return;
   }
