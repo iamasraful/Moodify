@@ -87,6 +87,7 @@ export default function PostCard({ post, userReaction, onReact, onReply, onShare
           ? `0 20px 52px ${pm.glow}, 0 0 0 1px ${pm.color}12, inset 0 1px 0 ${pm.color}15`
           : "inset 0 1px 0 var(--inset-shine)",
         position:"relative", overflow:"visible",
+        zIndex: reactOpen ? 20 : undefined,
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -148,7 +149,7 @@ export default function PostCard({ post, userReaction, onReact, onReply, onShare
           borderBottom:"1px solid var(--border)",
         }}>
           <div style={{display:"flex"}}>
-            {reactionEntries.slice(0, 3).map((e, i) => (
+            {reactionEntries.map((e, i) => (
               <span key={e} style={{
                 display:"flex", alignItems:"center", justifyContent:"center",
                 width:22, height:22, borderRadius:"50%",
@@ -157,7 +158,7 @@ export default function PostCard({ post, userReaction, onReact, onReply, onShare
                 fontSize:11,
                 marginLeft: i > 0 ? -6 : 0,
                 boxShadow:"0 1px 4px rgba(0,0,0,0.15)",
-                zIndex: 3 - i,
+                zIndex: reactionEntries.length - i,
                 position:"relative",
               }}>{e}</span>
             ))}
@@ -205,10 +206,10 @@ export default function PostCard({ post, userReaction, onReact, onReply, onShare
             style={{
               position:"absolute",
               bottom:"calc(100% + 10px)",
-              left:"50%",
+              left:0,
               transform: reactOpen
-                ? "translateX(-50%) scale(1) translateY(0)"
-                : "translateX(-50%) scale(0.75) translateY(10px)",
+                ? "scale(1) translateY(0)"
+                : "scale(0.75) translateY(10px)",
               opacity: reactOpen ? 1 : 0,
               pointerEvents: reactOpen ? "auto" : "none",
               transition:"all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
@@ -222,8 +223,8 @@ export default function PostCard({ post, userReaction, onReact, onReply, onShare
           >
             {/* Caret arrow */}
             <div style={{
-              position:"absolute", bottom:-5, left:"50%",
-              transform:"translateX(-50%) rotate(45deg)",
+              position:"absolute", bottom:-5, left:25,
+              transform:"rotate(45deg)",
               width:9, height:9,
               background:"var(--surface)",
               border:"1px solid var(--border)",
