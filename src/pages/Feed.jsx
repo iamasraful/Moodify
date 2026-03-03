@@ -11,15 +11,23 @@ import AnalysisModal from "../components/AnalysisModal.jsx";
 export default function Feed() {
   const { mood, user, toast } = useApp();
   const m = MOODS[mood];
-  const [posts, setPosts]         = useState([]);
-  const [pending, setPending]     = useState([]);
-  const [text, setText]           = useState("");
-  const [filter, setFilter]       = useState("all");
-  const [analysis, setAnalysis]   = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [online, setOnline]       = useState(1);
-  const [particles, setParticles] = useState([]);
+  const [posts, setPosts]           = useState([]);
+  const [pending, setPending]       = useState([]);
+  const [text, setText]             = useState("");
+  const [filter, setFilter]         = useState("all");
+  const [analysis, setAnalysis]     = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [online, setOnline]         = useState(1);
+  const [particles, setParticles]   = useState([]);
+  const [userReactions, setUserReactions] = useState({});
   const pollRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("moodify:userReactions") || "{}");
+      setUserReactions(stored);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -72,13 +80,36 @@ export default function Feed() {
     await storageSet("moodHistory", [...hist, { mood, date: new Date().toDateString() }].slice(-100));
   };
 
-  const onReact = useCallback(async (id, emoji) => {
+  const onReact = useCallback((id, emoji) => {
+    // Read directly from localStorage to avoid stale closure
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem("moodify:userReactions") || "{}"); } catch {}
+    const current = stored[id];
+
+    // Toggle off if same emoji, switch if different, add if none
+    const newUR = current === emoji
+      ? (({ [id]: _, ...rest }) => rest)(stored)
+      : { ...stored, [id]: emoji };
+
+    localStorage.setItem("moodify:userReactions", JSON.stringify(newUR));
+    setUserReactions(newUR);
+
     setPosts(prev => {
-      const updated = prev.map(p =>
-        p.id === id
-          ? { ...p, reactions: { ...p.reactions, [emoji]: (p.reactions[emoji]||0)+1 } }
-          : p
-      );
+      const updated = prev.map(p => {
+        if (p.id !== id) return p;
+        const r = { ...p.reactions };
+        if (current === emoji) {
+          r[emoji] = Math.max(0, (r[emoji] || 0) - 1);
+          if (r[emoji] === 0) delete r[emoji];
+        } else {
+          if (current) {
+            r[current] = Math.max(0, (r[current] || 0) - 1);
+            if (r[current] === 0) delete r[current];
+          }
+          r[emoji] = (r[emoji] || 0) + 1;
+        }
+        return { ...p, reactions: r };
+      });
       storageSet("posts", updated, true);
       return updated;
     });
@@ -277,6 +308,7 @@ export default function Feed() {
             <div key={p.id} style={{animation:`fadeUp 0.4s ease ${Math.min(i,6) * 0.06}s both`}}>
               <PostCard
                 post={p}
+                userReaction={userReactions[p.id] || null}
                 onReact={onReact} onReply={onReply}
                 onShare={onShare} onAnalyze={setAnalysis}
                 onParticle={addParticle}

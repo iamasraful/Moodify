@@ -1,20 +1,56 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useApp } from "../context.jsx";
 import { MOODS } from "../constants.js";
 import { ago, sanitize } from "../helpers.js";
 
-export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, onParticle }) {
+const REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "😡"];
+const REACTION_LABELS = { "👍": "Like", "❤️": "Love", "😂": "Haha", "😮": "Wow", "😢": "Sad", "😡": "Angry" };
+
+function ReplyIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 17 4 12 9 7"/>
+      <path d="M20 18v-2a4 4 0 00-4-4H4"/>
+    </svg>
+  );
+}
+
+function CopyIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+    </svg>
+  );
+}
+
+function AnalyzeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+      <line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  );
+}
+
+export default function PostCard({ post, userReaction, onReact, onReply, onShare, onAnalyze, onParticle }) {
   const { user, mood } = useApp();
   const m = MOODS[mood];
   const pm = MOODS[post.mood] || MOODS.happy;
-  const [open, setOpen]       = useState(false);
-  const [reply, setReply]     = useState("");
-  const [hovered, setHovered] = useState(false);
+  const [open, setOpen]           = useState(false);
+  const [reply, setReply]         = useState("");
+  const [hovered, setHovered]     = useState(false);
+  const [reactOpen, setReactOpen] = useState(false);
+  const [hoveredEmoji, setHoveredEmoji] = useState(null);
+  const reactTimer = useRef(null);
 
   const handleReact = (e, emoji) => {
     const r = e.currentTarget.getBoundingClientRect();
-    onParticle(r.left + r.width/2, r.top, emoji, pm.color);
+    onParticle(r.left + r.width / 2, r.top, emoji, pm.color);
     onReact(post.id, emoji);
+    setReactOpen(false);
   };
 
   const send = () => {
@@ -23,6 +59,19 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
     onReply(post.id, t);
     setReply("");
   };
+
+  const showReact = () => {
+    clearTimeout(reactTimer.current);
+    setReactOpen(true);
+  };
+
+  const hideReact = () => {
+    reactTimer.current = setTimeout(() => setReactOpen(false), 350);
+  };
+
+  const reactionEntries = REACTIONS.filter(e => (post.reactions?.[e] || 0) > 0)
+    .sort((a, b) => (post.reactions?.[b] || 0) - (post.reactions?.[a] || 0));
+  const totalReactions = reactionEntries.reduce((sum, e) => sum + (post.reactions?.[e] || 0), 0);
 
   return (
     <article
@@ -37,7 +86,7 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
         boxShadow: hovered
           ? `0 20px 52px ${pm.glow}, 0 0 0 1px ${pm.color}12, inset 0 1px 0 ${pm.color}15`
           : "inset 0 1px 0 var(--inset-shine)",
-        position:"relative", overflow:"hidden",
+        position:"relative", overflow:"visible",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -45,6 +94,7 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
       {/* Top shimmer line */}
       <div style={{
         position:"absolute", top:0, left:0, right:0, height:1,
+        borderRadius:"var(--radius-lg) var(--radius-lg) 0 0",
         background:`linear-gradient(90deg, transparent, ${pm.color}55, transparent)`,
         opacity: hovered ? 1 : 0.3, transition:"opacity 0.28s",
       }}/>
@@ -86,54 +136,194 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
       <p style={{
         color:"var(--text)", fontSize:15,
         lineHeight:1.75, fontFamily:"var(--serif)",
-        marginBottom:15, letterSpacing:"0.01em",
+        marginBottom: reactionEntries.length > 0 ? 10 : 15,
+        letterSpacing:"0.01em",
       }}>{post.text}</p>
+
+      {/* Reaction summary */}
+      {reactionEntries.length > 0 && (
+        <div style={{
+          display:"flex", alignItems:"center", gap:6,
+          marginBottom:12, paddingBottom:12,
+          borderBottom:"1px solid var(--border)",
+        }}>
+          <div style={{display:"flex"}}>
+            {reactionEntries.slice(0, 3).map((e, i) => (
+              <span key={e} style={{
+                display:"flex", alignItems:"center", justifyContent:"center",
+                width:22, height:22, borderRadius:"50%",
+                background:"var(--surface2)",
+                border:"2px solid var(--surface)",
+                fontSize:11,
+                marginLeft: i > 0 ? -6 : 0,
+                boxShadow:"0 1px 4px rgba(0,0,0,0.15)",
+                zIndex: 3 - i,
+                position:"relative",
+              }}>{e}</span>
+            ))}
+          </div>
+          <span style={{fontSize:12, color:"var(--muted)", fontFamily:"var(--sans)"}}>
+            {totalReactions}
+          </span>
+        </div>
+      )}
 
       {/* Actions */}
       <div style={{display:"flex", gap:5, flexWrap:"wrap", alignItems:"center"}}>
-        {["😂","❤️","🔥","😢","😮"].map(e => (
-          <button key={e} onClick={ev => handleReact(ev, e)} style={{
-            display:"flex", alignItems:"center", gap:4,
-            padding:"5px 10px", borderRadius:30,
-            border:"1px solid var(--border)",
-            background:"var(--surface)", cursor:"pointer",
-            transition:"all 0.15s",
+
+        {/* React button with Facebook-style popup */}
+        <div style={{position:"relative"}} onMouseEnter={showReact} onMouseLeave={hideReact}>
+          <button style={{
+            display:"flex", alignItems:"center", gap:6,
+            padding:"6px 13px", borderRadius:30,
+            border: userReaction ? `1px solid ${pm.color}50` : "1px solid var(--border)",
+            background: userReaction ? pm.dark : "var(--surface)",
+            cursor:"pointer",
+            fontSize:12, fontWeight:700,
+            color: userReaction ? pm.color : "var(--muted)",
+            fontFamily:"var(--sans)", transition:"all 0.15s",
           }}
-          onMouseEnter={ev => {
-            ev.currentTarget.style.background = "var(--surface2)";
-            ev.currentTarget.style.borderColor = "var(--border2)";
-            ev.currentTarget.style.transform = "scale(1.12)";
+          onMouseEnter={e => {
+            e.currentTarget.style.background = userReaction ? pm.dark : "var(--surface2)";
+            e.currentTarget.style.color = pm.color;
+            e.currentTarget.style.borderColor = `${pm.color}50`;
           }}
-          onMouseLeave={ev => {
-            ev.currentTarget.style.background = "var(--surface)";
-            ev.currentTarget.style.borderColor = "var(--border)";
-            ev.currentTarget.style.transform = "scale(1)";
+          onMouseLeave={e => {
+            e.currentTarget.style.background = userReaction ? pm.dark : "var(--surface)";
+            e.currentTarget.style.color = userReaction ? pm.color : "var(--muted)";
+            e.currentTarget.style.borderColor = userReaction ? `${pm.color}50` : "var(--border)";
           }}
           >
-            <span style={{fontSize:13}}>{e}</span>
-            <span style={{fontSize:11, color:"var(--faint)", fontFamily:"var(--sans)", fontWeight:600}}>
-              {post.reactions?.[e] || 0}
-            </span>
+            <span style={{fontSize:14}}>{userReaction || "👍"}</span>
+            {userReaction ? REACTION_LABELS[userReaction] : "React"}
           </button>
-        ))}
+
+          {/* Reaction popup */}
+          <div
+            onMouseEnter={() => clearTimeout(reactTimer.current)}
+            onMouseLeave={hideReact}
+            style={{
+              position:"absolute",
+              bottom:"calc(100% + 10px)",
+              left:"50%",
+              transform: reactOpen
+                ? "translateX(-50%) scale(1) translateY(0)"
+                : "translateX(-50%) scale(0.75) translateY(10px)",
+              opacity: reactOpen ? 1 : 0,
+              pointerEvents: reactOpen ? "auto" : "none",
+              transition:"all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              display:"flex", gap:4, alignItems:"flex-end",
+              padding:"8px 10px", borderRadius:40,
+              background:"var(--surface)",
+              border:"1px solid var(--border)",
+              boxShadow:"0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1)",
+              zIndex:100,
+            }}
+          >
+            {/* Caret arrow */}
+            <div style={{
+              position:"absolute", bottom:-5, left:"50%",
+              transform:"translateX(-50%) rotate(45deg)",
+              width:9, height:9,
+              background:"var(--surface)",
+              border:"1px solid var(--border)",
+              borderTop:"none", borderLeft:"none",
+            }}/>
+
+            {REACTIONS.map(e => (
+              <div key={e} style={{position:"relative", display:"flex", flexDirection:"column", alignItems:"center"}}>
+                {/* Tooltip label */}
+                <div style={{
+                  position:"absolute",
+                  bottom:"calc(100% + 6px)",
+                  left:"50%",
+                  transform:"translateX(-50%)",
+                  padding:"3px 7px", borderRadius:7,
+                  background:"rgba(0,0,0,0.72)", color:"#fff",
+                  fontSize:10, fontWeight:600, fontFamily:"var(--sans)",
+                  whiteSpace:"nowrap", pointerEvents:"none",
+                  opacity: hoveredEmoji === e ? 1 : 0,
+                  transition:"opacity 0.1s",
+                }}>
+                  {REACTION_LABELS[e]}
+                </div>
+                <button
+                  onClick={ev => handleReact(ev, e)}
+                  onMouseEnter={() => setHoveredEmoji(e)}
+                  onMouseLeave={() => setHoveredEmoji(null)}
+                  style={{
+                    width: hoveredEmoji === e ? 42 : 34,
+                    height: hoveredEmoji === e ? 42 : 34,
+                    borderRadius:"50%",
+                    border: userReaction === e ? `2px solid ${pm.color}` : "none",
+                    background: hoveredEmoji === e
+                      ? "var(--surface2)"
+                      : userReaction === e
+                        ? pm.dark
+                        : "transparent",
+                    cursor:"pointer",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize: hoveredEmoji === e ? 26 : 20,
+                    transition:"all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    transform: hoveredEmoji === e ? "translateY(-5px)" : "translateY(0)",
+                  }}
+                >
+                  {e}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div style={{flex:1}}/>
-        <button className="btn-ghost" onClick={() => setOpen(!open)} style={{
-          padding:"5px 11px", borderRadius:30, fontSize:11, fontWeight:600,
-        }}>
-          ◎ {post.replies?.length || 0}
+
+        {/* Reply button */}
+        <button
+          className="btn-ghost"
+          onClick={() => setOpen(!open)}
+          style={{
+            display:"flex", alignItems:"center", gap:5,
+            padding:"6px 11px", borderRadius:30, fontSize:12, fontWeight:600,
+            color: open ? pm.color : "var(--muted)",
+            transition:"color 0.15s",
+          }}
+        >
+          <ReplyIcon />
+          {post.replies?.length > 0 && (
+            <span>{post.replies.length}</span>
+          )}
         </button>
-        <button className="btn-ghost" onClick={() => onShare(post)} style={{
-          padding:"5px 11px", borderRadius:30, fontSize:11, fontWeight:600,
-        }}>⊕</button>
-        <button onClick={() => onAnalyze(post)} style={{
-          padding:"5px 11px", borderRadius:30, fontSize:11, fontWeight:600,
-          border:`1px solid ${m.color}25`,
-          background: m.dark,
-          color: m.color,
-          cursor:"pointer", fontFamily:"var(--sans)",
-          transition:"all 0.15s",
-          boxShadow:`inset 0 1px 0 ${m.color}15`,
-        }}>◈</button>
+
+        {/* Copy button */}
+        <button
+          className="btn-ghost"
+          onClick={() => onShare(post)}
+          title="Copy post"
+          style={{
+            display:"flex", alignItems:"center", gap:5,
+            padding:"6px 11px", borderRadius:30, fontSize:12, fontWeight:600,
+          }}
+        >
+          <CopyIcon />
+        </button>
+
+        {/* Analyze button */}
+        <button
+          onClick={() => onAnalyze(post)}
+          title="Analyze mood"
+          style={{
+            display:"flex", alignItems:"center", gap:5,
+            padding:"6px 11px", borderRadius:30, fontSize:12, fontWeight:600,
+            border:`1px solid ${m.color}25`,
+            background: m.dark,
+            color: m.color,
+            cursor:"pointer", fontFamily:"var(--sans)",
+            transition:"all 0.15s",
+            boxShadow:`inset 0 1px 0 ${m.color}15`,
+          }}
+        >
+          <AnalyzeIcon />
+        </button>
       </div>
 
       {/* Replies */}
@@ -164,7 +354,7 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
               value={reply}
               onChange={e => setReply(e.target.value.slice(0, 280))}
               onKeyDown={e => e.key === "Enter" && send()}
-              placeholder="Reply…"
+              placeholder="Write a reply…"
               style={{
                 padding:"9px 14px", fontSize:13, borderRadius:12,
                 "--accent":`${m.color}60`,
@@ -172,6 +362,7 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
               }}
             />
             <button onClick={send} style={{
+              display:"flex", alignItems:"center", gap:6,
               padding:"9px 18px", borderRadius:12, border:"none",
               background: m.color,
               color:"#000", fontSize:12, fontWeight:700,
@@ -181,7 +372,13 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
             }}
             onMouseEnter={e => e.currentTarget.style.opacity="0.82"}
             onMouseLeave={e => e.currentTarget.style.opacity="1"}
-            >Send</button>
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              Send
+            </button>
           </div>
         </div>
       )}
