@@ -28,22 +28,25 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
     <article
       style={{
         borderRadius:"var(--radius-lg)", padding:"18px 20px", marginBottom:12,
-        background:"var(--surface)",
-        border:`1px solid ${hovered ? `${pm.color}20` : "var(--border)"}`,
-        backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)",
-        transition:"all 0.25s ease",
+        background: hovered
+          ? `linear-gradient(145deg, ${pm.color}0e 0%, var(--surface) 100%)`
+          : "var(--surface)",
+        border:`1px solid ${hovered ? `${pm.color}28` : "var(--border)"}`,
+        transition:"all 0.28s ease",
         transform: hovered ? "translateY(-2px)" : "translateY(0)",
-        boxShadow: hovered ? `0 16px 48px ${pm.glow}, 0 0 0 1px ${pm.color}15` : "none",
+        boxShadow: hovered
+          ? `0 20px 52px ${pm.glow}, 0 0 0 1px ${pm.color}12, inset 0 1px 0 ${pm.color}15`
+          : "inset 0 1px 0 var(--inset-shine)",
         position:"relative", overflow:"hidden",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Top accent line */}
+      {/* Top shimmer line */}
       <div style={{
         position:"absolute", top:0, left:0, right:0, height:1,
-        background:`linear-gradient(90deg, transparent, ${pm.color}50, transparent)`,
-        opacity: hovered ? 1 : 0, transition:"opacity 0.25s",
+        background:`linear-gradient(90deg, transparent, ${pm.color}55, transparent)`,
+        opacity: hovered ? 1 : 0.3, transition:"opacity 0.28s",
       }}/>
 
       {/* Header */}
@@ -53,8 +56,8 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
           display:"flex", alignItems:"center", justifyContent:"center",
           fontSize:21, background: pm.dark,
           border:`1.5px solid ${pm.color}35`,
-          boxShadow: hovered ? `0 0 18px ${pm.glow}` : "none",
-          transition:"box-shadow 0.25s",
+          boxShadow: hovered ? `0 0 22px ${pm.glow}` : `0 0 10px ${pm.dark}`,
+          transition:"box-shadow 0.28s",
         }}>{post.avatar}</div>
         <div style={{flex:1, minWidth:0}}>
           <p style={{
@@ -66,8 +69,10 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
         <div style={{
           display:"flex", alignItems:"center", gap:5,
           padding:"4px 10px", borderRadius:30,
-          background: pm.dark, border:`1px solid ${pm.color}25`,
-          flexShrink:0,
+          background: pm.dark,
+          border:`1px solid ${pm.color}22`,
+          boxShadow: hovered ? `0 0 14px ${pm.glow}` : "none",
+          flexShrink:0, transition:"box-shadow 0.28s",
         }}>
           <span style={{fontSize:12}}>{pm.emoji}</span>
           <span style={{
@@ -79,8 +84,8 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
 
       {/* Body */}
       <p style={{
-        color:"rgba(255,255,255,0.82)", fontSize:15,
-        lineHeight:1.72, fontFamily:"var(--serif)",
+        color:"var(--text)", fontSize:15,
+        lineHeight:1.75, fontFamily:"var(--serif)",
         marginBottom:15, letterSpacing:"0.01em",
       }}>{post.text}</p>
 
@@ -96,10 +101,12 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
           }}
           onMouseEnter={ev => {
             ev.currentTarget.style.background = "var(--surface2)";
+            ev.currentTarget.style.borderColor = "var(--border2)";
             ev.currentTarget.style.transform = "scale(1.12)";
           }}
           onMouseLeave={ev => {
             ev.currentTarget.style.background = "var(--surface)";
+            ev.currentTarget.style.borderColor = "var(--border)";
             ev.currentTarget.style.transform = "scale(1)";
           }}
           >
@@ -125,6 +132,7 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
           color: m.color,
           cursor:"pointer", fontFamily:"var(--sans)",
           transition:"all 0.15s",
+          boxShadow:`inset 0 1px 0 ${m.color}15`,
         }}>◈</button>
       </div>
 
@@ -140,15 +148,17 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
                 border:"1px solid var(--border)",
               }}>{r.avatar}</div>
               <div style={{
-                flex:1, borderRadius:12, padding:"7px 12px",
-                background:"var(--surface2)", border:"1px solid var(--border)",
+                flex:1, borderRadius:12, padding:"8px 13px",
+                background:"var(--surface2)",
+                border:"1px solid var(--border)",
+                boxShadow:"inset 0 1px 0 var(--inset-shine)",
               }}>
-                <p style={{color:"var(--faint)", fontSize:10, fontWeight:700, fontFamily:"var(--sans)", marginBottom:2, letterSpacing:"0.05em"}}>{r.author}</p>
-                <p style={{color:"rgba(255,255,255,0.78)", fontSize:13, fontFamily:"var(--sans)", lineHeight:1.5}}>{r.text}</p>
+                <p style={{color:"var(--faint)", fontSize:10, fontWeight:700, fontFamily:"var(--sans)", marginBottom:3, letterSpacing:"0.06em"}}>{r.author}</p>
+                <p style={{color:"var(--text)", fontSize:13, fontFamily:"var(--sans)", lineHeight:1.55}}>{r.text}</p>
               </div>
             </div>
           ))}
-          <div style={{display:"flex", gap:8, marginTop:6}}>
+          <div style={{display:"flex", gap:8, marginTop:8}}>
             <input
               className="input-base"
               value={reply}
@@ -162,13 +172,14 @@ export default function PostCard({ post, onReact, onReply, onShare, onAnalyze, o
               }}
             />
             <button onClick={send} style={{
-              padding:"9px 16px", borderRadius:12, border:"none",
+              padding:"9px 18px", borderRadius:12, border:"none",
               background: m.color,
               color:"#000", fontSize:12, fontWeight:700,
               cursor:"pointer", fontFamily:"var(--sans)",
               flexShrink:0, transition:"opacity 0.15s",
+              boxShadow:`0 4px 18px ${m.glow}`,
             }}
-            onMouseEnter={e => e.currentTarget.style.opacity="0.85"}
+            onMouseEnter={e => e.currentTarget.style.opacity="0.82"}
             onMouseLeave={e => e.currentTarget.style.opacity="1"}
             >Send</button>
           </div>

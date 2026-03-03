@@ -4,43 +4,87 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Dark mode (default) ─────────────────────────────────────────── */
 :root {
   --sans: 'DM Sans', system-ui, sans-serif;
   --serif: 'Instrument Serif', Georgia, serif;
-  --bg: #080812;
-  --surface: rgba(255,255,255,0.04);
-  --surface2: rgba(255,255,255,0.07);
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: rgba(255,255,255,0.92);
-  --muted: rgba(255,255,255,0.45);
-  --faint: rgba(255,255,255,0.18);
+
+  --bg: #06060f;
+  --surface: #111120;
+  --surface2: #181830;
+  --surface3: #1e1e3a;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: rgba(255,255,255,0.94);
+  --muted: rgba(255,255,255,0.5);
+  --faint: rgba(255,255,255,0.22);
+
+  /* Translucent chrome backgrounds */
+  --bg-frosted: rgba(6,6,15,0.82);
+  --bg-frosted-heavy: rgba(6,6,15,0.92);
+
+  /* Toast */
+  --bg-toast: rgba(10,10,22,0.97);
+  --toast-border: rgba(255,255,255,0.1);
+  --toast-text: rgba(255,255,255,0.88);
+
+  /* Inset highlight */
+  --inset-shine: rgba(255,255,255,0.04);
+  --inset-shadow: rgba(0,0,0,0.3);
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.05) inset, 0 4px 24px rgba(0,0,0,0.4);
+
   --radius: 18px;
   --radius-sm: 12px;
   --radius-lg: 24px;
   --radius-xl: 32px;
 }
 
+/* ─── Light mode overrides ────────────────────────────────────────── */
+html[data-theme="light"] {
+  --bg: #f0efe9;
+  --surface: #ffffff;
+  --surface2: #f5f5f0;
+  --surface3: #edede8;
+  --border: rgba(0,0,0,0.09);
+  --border2: rgba(0,0,0,0.17);
+  --text: rgba(0,0,0,0.86);
+  --muted: rgba(0,0,0,0.5);
+  --faint: rgba(0,0,0,0.32);
+
+  --bg-frosted: rgba(240,239,233,0.88);
+  --bg-frosted-heavy: rgba(240,239,233,0.96);
+
+  --bg-toast: rgba(255,255,255,0.98);
+  --toast-border: rgba(0,0,0,0.1);
+  --toast-text: rgba(0,0,0,0.82);
+
+  --inset-shine: rgba(255,255,255,0.75);
+  --inset-shadow: rgba(0,0,0,0.06);
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.9) inset, 0 2px 16px rgba(0,0,0,0.07);
+}
+
+/* ─── Reset ───────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; -ms-overflow-style: none; }
 
 body {
   font-family: var(--sans);
-  background: #080812;
+  background: var(--bg);
   overscroll-behavior: none;
+  transition: background 0.3s ease;
 }
 
 input, textarea, button { font-family: inherit; }
-input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.2); }
+input::placeholder, textarea::placeholder { color: var(--faint); }
 img { user-select: none; -webkit-user-drag: none; }
 
+/* ─── Reusable components ─────────────────────────────────────────── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
 }
 
 .btn-ghost {
@@ -65,12 +109,12 @@ img { user-select: none; -webkit-user-drag: none; }
   color: var(--text);
   font-family: var(--sans);
   outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
 }
 .input-base:focus {
-  border-color: var(--accent, rgba(255,255,255,0.3));
-  box-shadow: 0 0 0 3px var(--accent-dim, rgba(255,255,255,0.06));
+  border-color: var(--accent, var(--border2));
+  box-shadow: 0 0 0 3px var(--accent-dim, rgba(0,0,0,0.04));
 }
 
 .label {
@@ -82,7 +126,7 @@ img { user-select: none; -webkit-user-drag: none; }
   font-family: var(--sans);
 }
 
-/* Nav layout */
+/* ─── Nav layout ──────────────────────────────────────────────────── */
 .sidebar  { display: none !important; }
 .btmdock  { display: flex !important; }
 .fab      { bottom: 82px !important; right: 16px !important; }
@@ -95,9 +139,9 @@ img { user-select: none; -webkit-user-drag: none; }
   .npbar    { bottom: 0 !important; }
 }
 
-/* Animations */
+/* ─── Animations ──────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from { opacity:0; transform:translateY(18px); }
+  from { opacity:0; transform:translateY(20px); }
   to   { opacity:1; transform:translateY(0); }
 }
 @keyframes fadeIn {
@@ -109,11 +153,11 @@ img { user-select: none; -webkit-user-drag: none; }
   to   { opacity:1; transform:scale(1) translateY(0); }
 }
 @keyframes slideDown {
-  from { opacity:0; transform:translateY(-10px); }
+  from { opacity:0; transform:translateY(-12px); }
   to   { opacity:1; transform:translateY(0); }
 }
 @keyframes toastSlide {
-  from { opacity:0; transform:translateX(20px) scale(0.95); }
+  from { opacity:0; transform:translateX(24px) scale(0.94); }
   to   { opacity:1; transform:translateX(0) scale(1); }
 }
 @keyframes float {
@@ -133,23 +177,28 @@ img { user-select: none; -webkit-user-drag: none; }
 }
 @keyframes particleRise {
   0%   { opacity:1; transform:translateY(0) scale(1); }
-  100% { opacity:0; transform:translateY(-56px) scale(0.4); }
+  100% { opacity:0; transform:translateY(-64px) scale(0.3); }
 }
 @keyframes orbPulse {
-  0%,100% { transform:scale(1) translate(0,0); opacity:0.6; }
-  33%     { transform:scale(1.05) translate(2%,3%); opacity:0.8; }
-  66%     { transform:scale(0.97) translate(-2%,-2%); opacity:0.5; }
+  0%,100% { transform:scale(1) translate(0,0); opacity:0.7; }
+  33%     { transform:scale(1.06) translate(2%,3%); opacity:0.9; }
+  66%     { transform:scale(0.96) translate(-2%,-2%); opacity:0.6; }
 }
 @keyframes ripple {
   0%   { transform:scale(0); opacity:0.6; }
   100% { transform:scale(4); opacity:0; }
 }
+@keyframes glowPulse {
+  0%,100% { opacity:0.6; }
+  50%     { opacity:1; }
+}
 
+/* ─── Shimmer loading skeleton ────────────────────────────────────── */
 .shimmer-box {
   background: linear-gradient(90deg,
-    rgba(255,255,255,0.04) 25%,
-    rgba(255,255,255,0.08) 50%,
-    rgba(255,255,255,0.04) 75%
+    var(--surface) 25%,
+    var(--surface2) 50%,
+    var(--surface) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;

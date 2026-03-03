@@ -4,6 +4,39 @@ import { MOODS, MOOD_FORECAST } from "../constants.js";
 import { storageGet } from "../storage.js";
 import VibeCheck from "../components/VibeCheck.jsx";
 
+const QUOTES = [
+  { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { content: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+  { content: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+  { content: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+  { content: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+  { content: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+  { content: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
+  { content: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas Edison" },
+  { content: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+  { content: "Don't let yesterday take up too much of today.", author: "Will Rogers" },
+  { content: "You learn more from failure than from success. Don't let it stop you.", author: "Unknown" },
+  { content: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou" },
+  { content: "Knowing is not enough; we must apply. Wishing is not enough; we must do.", author: "Johann Wolfgang von Goethe" },
+  { content: "Imagination is more important than knowledge.", author: "Albert Einstein" },
+  { content: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+  { content: "An unexamined life is not worth living.", author: "Socrates" },
+  { content: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", author: "Mother Teresa" },
+  { content: "When you reach the end of your rope, tie a knot in it and hang on.", author: "Franklin D. Roosevelt" },
+  { content: "Always remember that you are absolutely unique. Just like everyone else.", author: "Margaret Mead" },
+  { content: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" },
+  { content: "You will face many defeats in life, but never let yourself be defeated.", author: "Maya Angelou" },
+  { content: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+  { content: "In the end, it's not the years in your life that count. It's the life in your years.", author: "Abraham Lincoln" },
+  { content: "Never let the fear of striking out keep you from playing the game.", author: "Babe Ruth" },
+  { content: "Life is either a daring adventure or nothing at all.", author: "Helen Keller" },
+  { content: "Many of life's failures are people who did not realize how close they were to success when they gave up.", author: "Thomas Edison" },
+  { content: "You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.", author: "Dr. Seuss" },
+  { content: "If life were predictable it would cease to be life, and be without flavor.", author: "Eleanor Roosevelt" },
+  { content: "If you look at what you have in life, you'll always have more.", author: "Oprah Winfrey" },
+  { content: "If you set your goals ridiculously high and it's a failure, you will fail above everyone else's success.", author: "James Cameron" },
+];
+
 export default function Explore() {
   const { mood, setMood, toast } = useApp();
   const m = MOODS[mood];
@@ -11,7 +44,6 @@ export default function Explore() {
   const [joke, setJoke]         = useState(null);
   const [posts, setPosts]       = useState([]);
   const [showVibe, setShowVibe] = useState(false);
-  const [loadQ, setLoadQ]       = useState(false);
   const [loadJ, setLoadJ]       = useState(false);
 
   useEffect(() => {
@@ -19,13 +51,8 @@ export default function Explore() {
     (async () => setPosts(await storageGet("posts", true) || []))();
   }, []);
 
-  const fetchQ = async () => {
-    setLoadQ(true);
-    try {
-      const r = await fetch("https://api.quotable.io/random");
-      if (r.ok) setQuote(await r.json());
-    } catch {}
-    setLoadQ(false);
+  const fetchQ = () => {
+    setQuote(QUOTES[Math.floor(Math.random() * QUOTES.length)]);
   };
 
   const fetchJ = async () => {
@@ -140,22 +167,19 @@ export default function Explore() {
             width:28, height:28, borderRadius:9, marginBottom:12,
             display:"flex", alignItems:"center", justifyContent:"center",
             fontSize:13, fontWeight:700,
-          }}>{loadQ ? "·" : "↻"}</button>
+          }}>↻</button>
         </div>
-        {quote
-          ? <>
-            <p style={{
-              fontSize:16, fontFamily:"var(--serif)", fontStyle:"italic",
-              color:"rgba(255,255,255,0.8)", lineHeight:1.7, marginBottom:10,
-            }}>
-              <span style={{fontSize:28, color:"rgba(167,139,250,0.3)", lineHeight:0, verticalAlign:"-0.25em", marginRight:3}}>"</span>
-              {quote.content}
-              <span style={{fontSize:28, color:"rgba(167,139,250,0.3)", lineHeight:0, verticalAlign:"-0.25em", marginLeft:3}}>"</span>
-            </p>
-            <p style={{textAlign:"right", fontSize:11, color:"rgba(167,139,250,0.65)", fontFamily:"var(--sans)"}}>— {quote.author}</p>
-          </>
-          : <div className="shimmer-box" style={{height:56, borderRadius:10}}/>
-        }
+        {quote && <>
+          <p style={{
+            fontSize:16, fontFamily:"var(--serif)", fontStyle:"italic",
+            color:"var(--text)", lineHeight:1.7, marginBottom:10,
+          }}>
+            <span style={{fontSize:28, color:"rgba(167,139,250,0.3)", lineHeight:0, verticalAlign:"-0.25em", marginRight:3}}>"</span>
+            {quote.content}
+            <span style={{fontSize:28, color:"rgba(167,139,250,0.3)", lineHeight:0, verticalAlign:"-0.25em", marginLeft:3}}>"</span>
+          </p>
+          <p style={{textAlign:"right", fontSize:11, color:"rgba(167,139,250,0.65)", fontFamily:"var(--sans)"}}>— {quote.author}</p>
+        </>}
       </SCard>
 
       {/* Joke */}
@@ -168,12 +192,16 @@ export default function Explore() {
             fontSize:13, fontWeight:700,
           }}>{loadJ ? "·" : "↻"}</button>
         </div>
-        {joke
-          ? <>
-            <p style={{color:"rgba(255,255,255,0.75)", fontSize:14, fontWeight:500, fontFamily:"var(--sans)", marginBottom:10, lineHeight:1.5}}>{joke.setup}</p>
-            <p style={{fontSize:15, color:m.color, fontStyle:"italic", fontFamily:"var(--serif)", lineHeight:1.55}}>{joke.punchline}</p>
-          </>
-          : <div className="shimmer-box" style={{height:48, borderRadius:10}}/>
+        {loadJ
+          ? <div className="shimmer-box" style={{height:48, borderRadius:10}}/>
+          : joke
+            ? <>
+              <p style={{color:"var(--text)", fontSize:14, fontWeight:500, fontFamily:"var(--sans)", marginBottom:10, lineHeight:1.5}}>{joke.setup}</p>
+              <p style={{fontSize:15, color:m.color, fontStyle:"italic", fontFamily:"var(--serif)", lineHeight:1.55}}>{joke.punchline}</p>
+            </>
+            : <p style={{color:"var(--faint)", fontSize:13, fontFamily:"var(--sans)", textAlign:"center", padding:"8px 0"}}>
+                Could not load a joke. Hit ↻ to retry.
+              </p>
         }
       </SCard>
     </div>

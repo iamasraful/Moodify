@@ -4,7 +4,7 @@ export default function Particle({ x, y, emoji, color, onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 1100);
     return () => clearTimeout(t);
-  }, []);
+  }, [onDone]);
   return (
     <div style={{
       position:"fixed", left:x-12, top:y-10, zIndex:9999,

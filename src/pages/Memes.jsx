@@ -93,7 +93,7 @@ export default function Memes() {
               onError={() => fetchMeme(sub || MEME_SUBS[mood])}
             />
             <div style={{padding:"13px 18px", width:"100%", borderTop:"1px solid var(--border)"}}>
-              <p style={{color:"rgba(255,255,255,0.75)", fontWeight:500, fontSize:13, marginBottom:3, fontFamily:"var(--sans)", lineHeight:1.4}}>{meme.title}</p>
+              <p style={{color:"var(--text)", fontWeight:500, fontSize:13, marginBottom:3, fontFamily:"var(--sans)", lineHeight:1.4}}>{meme.title}</p>
               <p style={{color:"var(--faint)", fontSize:10, fontFamily:"var(--sans)", letterSpacing:"0.03em"}}>r/{meme.subreddit} · {(meme.ups||0).toLocaleString()} upvotes</p>
             </div>
           </>

@@ -123,7 +123,7 @@ export default function Feed() {
       ))}
 
       {/* Header row */}
-      <div style={{display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:20}}>
+      <div style={{display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:20, marginTop:10}}>
         <div>
           <h2 style={{
             fontFamily:"var(--serif)", fontSize:"clamp(24px,5vw,32px)",
@@ -175,7 +175,7 @@ export default function Feed() {
       <div className="card" style={{
         padding:"20px 20px 16px", marginBottom:18,
         border:`1px solid ${m.color}20`,
-        boxShadow:`0 0 48px ${m.dark}, inset 0 1px 0 rgba(255,255,255,0.04)`,
+        boxShadow:`0 0 48px ${m.dark}, inset 0 1px 0 var(--inset-shine)`,
         transition:"box-shadow 0.4s, border-color 0.4s",
         position:"relative", overflow:"hidden",
       }}>
@@ -200,7 +200,7 @@ export default function Feed() {
             maxLength={500}
             style={{
               flex:1, background:"transparent", border:"none",
-              color:"rgba(255,255,255,0.85)", fontSize:15,
+              color:"var(--text)", fontSize:15,
               fontFamily:"var(--serif)", resize:"none",
               outline:"none", minHeight:72, lineHeight:1.7,
               paddingTop:6,
@@ -221,8 +221,8 @@ export default function Feed() {
               disabled={!text.trim()}
               style={{
                 padding:"9px 20px", borderRadius:12, border:"none",
-                background: text.trim() ? m.color : "rgba(255,255,255,0.07)",
-                color: text.trim() ? "#000" : "rgba(255,255,255,0.2)",
+                background: text.trim() ? m.color : "var(--surface2)",
+                color: text.trim() ? "#000" : "var(--muted)",
                 fontSize:12, fontWeight:700, cursor: text.trim() ? "pointer" : "not-allowed",
                 fontFamily:"var(--sans)", letterSpacing:"0.03em",
                 boxShadow: text.trim() ? `0 4px 20px ${m.glow}` : "none",

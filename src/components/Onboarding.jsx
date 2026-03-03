@@ -22,7 +22,7 @@ export default function Onboarding({ onDone }) {
   return (
     <div style={{
       position:"fixed", inset:0, zIndex:1000, overflow:"hidden",
-      background:"#080812",
+      background:"var(--bg)",
       display:"flex", alignItems:"center", justifyContent:"center", padding:20,
     }}>
       {/* Background orbs */}
@@ -57,7 +57,7 @@ export default function Onboarding({ onDone }) {
           }}>🎭</div>
           <h1 style={{
             fontFamily:"var(--serif)", fontSize:"clamp(40px,9vw,56px)",
-            fontWeight:400, color:"#fff", margin:0,
+            fontWeight:400, color:"var(--text)", margin:0,
             letterSpacing:"-1.5px", lineHeight:1,
           }}>Moodify</h1>
           <p style={{
@@ -77,7 +77,7 @@ export default function Onboarding({ onDone }) {
               <button key={a} onClick={() => setAvatar(a)} style={{
                 aspectRatio:"1", borderRadius:12, fontSize:19,
                 cursor:"pointer", border:"none",
-                background: avatar===a ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
+                background: avatar===a ? "rgba(139,92,246,0.2)" : "var(--surface)",
                 outline: avatar===a ? "2px solid rgba(139,92,246,0.7)" : "2px solid transparent",
                 outlineOffset:2,
                 transform: avatar===a ? "scale(1.15)" : "scale(1)",
@@ -117,8 +117,8 @@ export default function Onboarding({ onDone }) {
             border:"none", cursor: name.trim() && !loading ? "pointer" : "not-allowed",
             background: name.trim()
               ? "linear-gradient(135deg, #7C3AED, #EC4899)"
-              : "rgba(255,255,255,0.07)",
-            color: name.trim() ? "#fff" : "rgba(255,255,255,0.25)",
+              : "var(--surface2)",
+            color: name.trim() ? "#fff" : "var(--muted)",
             fontSize:15, fontWeight:600, fontFamily:"var(--sans)",
             letterSpacing:"0.03em",
             boxShadow: name.trim() ? "0 8px 32px rgba(124,58,237,0.4)" : "none",

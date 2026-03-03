@@ -1,12 +1,20 @@
 export const MOODS = {
-  happy:    { label:"Happy",     emoji:"😄", color:"#F59E0B", glow:"rgba(245,158,11,0.4)",  dark:"rgba(245,158,11,0.08)",  genre:"happy pop upbeat"        },
-  sad:      { label:"Sad",       emoji:"😢", color:"#60A5FA", glow:"rgba(96,165,250,0.4)",  dark:"rgba(96,165,250,0.08)",  genre:"sad acoustic emotional"  },
-  angry:    { label:"Angry",     emoji:"😡", color:"#F43F5E", glow:"rgba(244,63,94,0.4)",   dark:"rgba(244,63,94,0.08)",   genre:"angry rock aggressive"   },
-  chill:    { label:"Chill",     emoji:"😎", color:"#10B981", glow:"rgba(16,185,129,0.4)",  dark:"rgba(16,185,129,0.08)",  genre:"chill lofi relaxing"     },
-  romantic: { label:"Romantic",  emoji:"💕", color:"#EC4899", glow:"rgba(236,72,153,0.4)",  dark:"rgba(236,72,153,0.08)",  genre:"romantic love ballad"    },
-  anxious:  { label:"Anxious",   emoji:"😰", color:"#8B5CF6", glow:"rgba(139,92,246,0.4)",  dark:"rgba(139,92,246,0.08)",  genre:"ambient anxiety calm"    },
-  hyped:    { label:"Hyped",     emoji:"🔥", color:"#F97316", glow:"rgba(249,115,22,0.4)",  dark:"rgba(249,115,22,0.08)",  genre:"hype energetic hip hop"  },
-  nostalgic:{ label:"Nostalgic", emoji:"🌙", color:"#94A3B8", glow:"rgba(148,163,184,0.4)", dark:"rgba(148,163,184,0.08)", genre:"nostalgic indie folk"    },
+  happy:    { label:"Happy",     emoji:"😄", color:"#F59E0B", glow:"rgba(245,158,11,0.4)",  dark:"rgba(245,158,11,0.08)",  genre:"happy pop upbeat",
+    queries:["Badshah songs","bollywood party hits","Yo Yo Honey Singh dance","Dua Lipa dance pop","Pharrell Williams happy"] },
+  sad:      { label:"Sad",       emoji:"😢", color:"#60A5FA", glow:"rgba(96,165,250,0.4)",  dark:"rgba(96,165,250,0.08)",  genre:"sad acoustic emotional",
+    queries:["Arijit Singh sad","Jubin Nautiyal emotional","KK dil ibaadat","Adele heartbreak","hindi breakup songs"] },
+  angry:    { label:"Angry",     emoji:"😡", color:"#F43F5E", glow:"rgba(244,63,94,0.4)",   dark:"rgba(244,63,94,0.08)",   genre:"angry rock aggressive",
+    queries:["Linkin Park","Eminem rap","Diljit Dosanjh punjabi","Honey Singh rap","hard rock aggressive"] },
+  chill:    { label:"Chill",     emoji:"😎", color:"#10B981", glow:"rgba(16,185,129,0.4)",  dark:"rgba(16,185,129,0.08)",  genre:"chill lofi relaxing",
+    queries:["Prateek Kuhad","lofi hindi chill","Cigarettes After Sex","indie acoustic relax","Shubh mellow"] },
+  romantic: { label:"Romantic",  emoji:"💕", color:"#EC4899", glow:"rgba(236,72,153,0.4)",  dark:"rgba(236,72,153,0.08)",  genre:"romantic love ballad",
+    queries:["Arijit Singh romantic","Atif Aslam love songs","KK pyaar ke pal","Ed Sheeran perfect","bollywood love"] },
+  anxious:  { label:"Anxious",   emoji:"😰", color:"#8B5CF6", glow:"rgba(139,92,246,0.4)",  dark:"rgba(139,92,246,0.08)",  genre:"ambient anxiety calm",
+    queries:["hindi instrumental piano calm","ambient study focus","lofi peaceful beats","soft acoustic soothing","A R Rahman instrumental"] },
+  hyped:    { label:"Hyped",     emoji:"🔥", color:"#F97316", glow:"rgba(249,115,22,0.4)",  dark:"rgba(249,115,22,0.08)",  genre:"hype energetic hip hop",
+    queries:["Badshah club banger","punjabi dance floor","The Weeknd Blinding Lights","bollywood item number","EDM hype drops"] },
+  nostalgic:{ label:"Nostalgic", emoji:"🌙", color:"#94A3B8", glow:"rgba(148,163,184,0.4)", dark:"rgba(148,163,184,0.08)", genre:"nostalgic indie folk",
+    queries:["Kishore Kumar","Lata Mangeshkar","Mohammed Rafi","90s bollywood hits","retro hindi classics"] },
 };
 
 export const MEME_SUBS = {

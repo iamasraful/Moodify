@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { storageGet, storageSet } from "./storage.js";
 import { MOODS } from "./constants.js";
 import { sanitize } from "./helpers.js";
-import { Ctx } from "./context.jsx";
+import { Ctx, getStoredTheme, applyTheme } from "./context.jsx";
 
 import Onboarding from "./components/Onboarding.jsx";
 import MoodRail from "./components/MoodRail.jsx";
@@ -28,6 +28,15 @@ export default function App() {
   const [page, setPage]      = useState("feed");
   const [toasts, setToasts]  = useState([]);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme]    = useState(getStoredTheme);
+  const m = MOODS[mood];
+
+  // Keep HTML data-theme in sync
+  useEffect(() => { applyTheme(theme); }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(t => t === "dark" ? "light" : "dark");
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -60,24 +69,40 @@ export default function App() {
 
   if (loading) return (
     <div style={{
-      position:"fixed", inset:0, background:"#080812",
+      position:"fixed", inset:0, background:"var(--bg)",
       display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", gap:16,
+      alignItems:"center", justifyContent:"center", gap:20,
     }}>
       <div style={{
-        fontSize:48, animation:"float 1.8s ease-in-out infinite",
-        filter:"drop-shadow(0 0 28px rgba(139,92,246,0.55))",
+        position:"absolute", width:500, height:500, borderRadius:"50%",
+        background:"radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 65%)",
+        pointerEvents:"none",
+      }}/>
+      <div style={{
+        width:58, height:58, borderRadius:19,
+        display:"flex", alignItems:"center", justifyContent:"center",
+        fontSize:28,
+        background:"var(--surface)",
+        border:"1px solid var(--border)",
+        boxShadow:"0 0 40px rgba(139,92,246,0.3), inset 0 1px 0 var(--inset-shine)",
+        animation:"float 1.8s ease-in-out infinite",
       }}>🎭</div>
-      <p style={{
-        color:"var(--faint)", fontSize:11, fontFamily:"var(--sans)",
-        letterSpacing:"0.15em", textTransform:"uppercase",
-        animation:"pulse 2s ease-in-out infinite",
-      }}>Loading…</p>
+      <div style={{textAlign:"center"}}>
+        <p style={{
+          fontFamily:"var(--serif)", fontSize:24, color:"var(--text)",
+          letterSpacing:"-0.6px", marginBottom:10,
+        }}>Moodify</p>
+        <p style={{
+          color:"var(--faint)", fontSize:10, fontFamily:"var(--sans)",
+          letterSpacing:"0.18em", textTransform:"uppercase",
+          animation:"pulse 2s ease-in-out infinite",
+        }}>Loading…</p>
+      </div>
     </div>
   );
 
   if (!user) return (
-    <Ctx.Provider value={{ mood, setMood, user, setUser, toast }}>
+    <Ctx.Provider value={{ mood, setMood, user, setUser, toast, theme, toggleTheme }}>
       <Onboarding onDone={u => setUser(u)} />
     </Ctx.Provider>
   );
@@ -85,10 +110,11 @@ export default function App() {
   const PageComponent = PAGES[page] || Feed;
 
   return (
-    <Ctx.Provider value={{ mood, setMood, user, setUser, toast }}>
+    <Ctx.Provider value={{ mood, setMood, user, setUser, toast, theme, toggleTheme }}>
       <div style={{
         height:"100vh", display:"flex", flexDirection:"column",
-        background:"#080812", color:"var(--text)", overflow:"hidden",
+        background:"var(--bg)", color:"var(--text)", overflow:"hidden",
+        transition:"background 0.3s ease",
       }}>
 
         <BackgroundOrbs/>
@@ -96,28 +122,68 @@ export default function App() {
         {/* Header */}
         <header style={{
           flexShrink:0, zIndex:70,
-          background:"rgba(8,8,18,0.84)",
-          backdropFilter:"blur(28px) saturate(160%)",
-          WebkitBackdropFilter:"blur(28px) saturate(160%)",
+          background:"var(--bg-frosted)",
+          backdropFilter:"blur(32px) saturate(180%)",
+          WebkitBackdropFilter:"blur(32px) saturate(180%)",
           borderBottom:"1px solid var(--border)",
-          boxShadow:"0 1px 0 rgba(255,255,255,0.02)",
+          boxShadow:"0 1px 0 var(--inset-shine), 0 8px 32px rgba(0,0,0,0.15)",
+          position:"relative",
+          transition:"background 0.3s ease, border-color 0.3s ease",
         }}>
+          {/* Mood-reactive accent line */}
+          <div style={{
+            position:"absolute", bottom:0, left:0, right:0, height:1,
+            background:`linear-gradient(90deg, transparent 0%, ${m.color}50 30%, ${m.color}70 50%, ${m.color}50 70%, transparent 100%)`,
+            transition:"background 0.6s ease",
+          }}/>
           <ConfigBanner/>
-          <div style={{maxWidth:860, margin:"0 auto", padding:"8px 16px"}}>
-            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12}}>
+          <div style={{maxWidth:860, margin:"0 auto", padding:"10px 16px"}}>
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14}}>
+              {/* Logo */}
               <div style={{display:"flex", alignItems:"center", gap:10}}>
                 <div style={{
-                  width:32, height:32, borderRadius:11,
+                  width:34, height:34, borderRadius:12,
                   display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:17, background:"var(--surface)",
+                  fontSize:17,
+                  background:"var(--surface)",
                   border:"1px solid var(--border)",
+                  boxShadow:`0 0 20px ${m.color}25, inset 0 1px 0 var(--inset-shine)`,
+                  transition:"box-shadow 0.5s ease",
                 }}>🎭</div>
                 <span style={{
-                  fontFamily:"var(--serif)", fontWeight:400, fontSize:22,
-                  color:"var(--text)", letterSpacing:"-0.7px",
+                  fontFamily:"var(--serif)", fontWeight:400, fontSize:23,
+                  letterSpacing:"-0.7px", color:"var(--text)",
+                  transition:"color 0.3s",
                 }}>Moodify</span>
               </div>
-              {/* <span style={{color:"var(--text)", fontSize:11, fontFamily:"var(--serif)",border:"2px solid var(--border)",borderRadius:12,}}>{user?.avatar} {user?.name}</span> */}
+
+              {/* Theme toggle */}
+              <button
+                onClick={toggleTheme}
+                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                style={{
+                  width:36, height:36, borderRadius:12,
+                  border:"1px solid var(--border)",
+                  background:"var(--surface)", cursor:"pointer",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:15, transition:"all 0.2s ease",
+                  color:"var(--muted)",
+                  boxShadow:"inset 0 1px 0 var(--inset-shine)",
+                  flexShrink:0,
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = "var(--surface2)";
+                  e.currentTarget.style.borderColor = "var(--border2)";
+                  e.currentTarget.style.color = "var(--text)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = "var(--surface)";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                  e.currentTarget.style.color = "var(--muted)";
+                }}
+              >
+                {theme === "dark" ? "☀" : "🌙"}
+              </button>
             </div>
             <MoodRail/>
           </div>
@@ -142,7 +208,7 @@ export default function App() {
         </div>
 
         <BottomDock page={page} setPage={setPage}/>
-        {page === "feed" && <FAB onClick={() => setPage("feed")}/>}
+        {page === "feed" && <FAB onClick={() => document.querySelector("main")?.scrollTo({ top: 0, behavior: "smooth" })}/>}
         <Toasts toasts={toasts}/>
       </div>
     </Ctx.Provider>

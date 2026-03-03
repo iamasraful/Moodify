@@ -38,6 +38,7 @@ jobs:
         env:
           VITE_JSONBIN_BIN_ID:  ${{ secrets.VITE_JSONBIN_BIN_ID }}
           VITE_JSONBIN_API_KEY: ${{ secrets.VITE_JSONBIN_API_KEY }}
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: npm run build
 
       - name: Setup Pages
